@@ -2,7 +2,6 @@
 var service = require('./service');
 const fs = require('fs');
 
-
 class Checker
 {
     constructor()
@@ -66,19 +65,44 @@ class Checker
     //Adds a new URI to the list
     AddURI(uri)
     {
-        var found = this.Services.find(function (element) {
-            return element.URI === uri;
-        });
-        if (found === undefined)
-                this.Services.push(new service(uri));
+        try
+        {
+            var found = this.Services.find(function (element) {
+                return element.URI === uri;
+            });
+            if (found === undefined)
+                    this.Services.push(new service(uri));
+            else
+                return {operation:'Add', data:uri, Error:true, Message: 'Service already added.'};
+            return {operation:'Add', data:uri, Error:false, Message:'Service added.'};
+        }
+        catch(error)
+        {
+            return {operation:'Add', data:uri, Error:true, Message:error};
+        }
     }
 
     //Remove URI from the list
     RemoveURI(uri)
     {
-        this.Services = this.Services.filter(function(ele){ 
-            return ele.URI != uri; 
-        });
+        try
+        {
+            var count = this.Services.length;
+            this.Services = this.Services.filter(function(ele){ 
+                return ele.URI != uri; 
+            });
+            if (count === this.Services.length) //Not found
+            {
+                return {operation:'Delete', data:uri, Error:true, Message:'Not Found.'};
+            } else
+            {
+                return {operation:'Delete', data:uri, Error:false, Message:'Service deleted.'};
+            }
+        }
+        catch(error)
+        {
+            return {operation:'Delete', data:uri, Error:true, Message:error};
+        }
     }
 }
 
