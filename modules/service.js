@@ -34,6 +34,7 @@ module.exports = class Service
     {
         //Allow Self Signed Certificates
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        
         var options = 
         {
             method: 'HEAD',
