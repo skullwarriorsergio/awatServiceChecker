@@ -1,11 +1,35 @@
 'use strinct';
 var service = require('./service');
+const fs = require('fs');
+
 
 class Checker
 {
     constructor()
+    {        
+        try
+        {
+            this.Services = [];
+            var data = JSON.parse(fs.readFileSync('./services.json', 'utf8'));     
+            for(const item of data )
+            {
+                this.Services.push(new service(item));
+            };            
+        }
+        catch(error)
+        {
+        }
+    }
+
+    // Get service list
+    GetList()
     {
-        this.Services = [];
+        var result = [];
+        for(const item of this.Services)
+        {
+            result.push({URI:item.URI, Code:item.Code});
+        }
+        return JSON.stringify(result);
     }
 
     //Starts the timer for checking URIs
@@ -20,35 +44,40 @@ class Checker
     
     SaveToFile()
     {
+        var data = [];
+        this.Services.forEach(function(item)
+        {
+            data.push(item.URI);
+        });
         require('fs').writeFile(
 
             './services.json',
         
-            JSON.stringify(this.Services),
+            JSON.stringify(data),
         
             function (err) {
                 if (err) {
-                    console.error('Crap happens');
+                    console.error('IO error');
                 }
             }
         );
     }
 
     //Adds a new URI to the list
-    AddURI(url)
+    AddURI(uri)
     {
         var found = this.Services.find(function (element) {
-            return element.URI.host === url.host;
+            return element.URI === uri;
         });
         if (found === undefined)
-                this.Services.push(new service(url));
+                this.Services.push(new service(uri));
     }
 
     //Remove URI from the list
-    RemoveURI(url)
+    RemoveURI(uri)
     {
         this.Services = this.Services.filter(function(ele){ 
-            return ele.URI.host != url.host; 
+            return ele.URI != uri; 
         });
     }
 }
